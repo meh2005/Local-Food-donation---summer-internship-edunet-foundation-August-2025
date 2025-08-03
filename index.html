@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html >
+<head>
+  <title>FoodShare</title>
+  <link rel="stylesheet" href="styles.css" >
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <img src="foodshare.png" height="7%" width="7%" alt="Logo"/>
+      <span>FoodShare</span>
+    </div>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#show_food">Browse Food</a>
+      <a href="foodpost.html">Donate</a>
+      <a href="#abt">About</a></nav>
+      <br>
+      <a href="foodpost.html" class="post-btn">+PostFood</a>
+  </header>
+
+  <!-- home Section -->
+  <section class="hero" id="home">
+    <div class="hero-text">
+      <h1>Share Food,<br><span>Reduce Waste</span></h1>
+      <p>Connect with your community to share excess food and help those in need. <br> Many people go to bed hungry daily. Maybe YOUR ONE MEAL 
+        which is EXTRA can allow them to SLEEP without HUNGER.<br>Together, we can fight food waste and hunger.</p>
+      <div class="hero-buttons">
+        <button class="find-btn"><a href="foodpost.html">🍽️ Donate food</a></button>
+      </div>
+    </div>
+    <div class="hero-img">
+      <img src="shareclip.png" height="30%" width="55%" align="right" alt="Community sharing food" />
+    </div>
+  </section>
+
+  <!-- Food DISPLAY Section -->
+  <section class="food-list" id="show_food">
+    <h2>Available Food</h2>
+    <p>Fresh donations from your community</p>
+    <div class="food-filters">
+      <button class="active">All Available</button>
+    </div>
+    <div class="food-items"> 
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="how-it-works" id="abt">
+    <h2>How FoodShare Works</h2>
+    <p>Simple steps to reduce food waste and help your community<br>Below are the steps to follow </p>
+    <div class="steps">
+      <div class="step">
+        <div class="icon blue">➕</div>
+        <h4>1. Post Your Food</h4><br> <h5>Post details of your food by clicking on Donate/PostFood (in the top of the page). Once posted, wait till your food 
+        is collected by someone in need</h5>
+      </div>
+      <div class="step">
+        <div class="icon green">🤝</div>
+        <h4>2. Connect & Coordinate</h4>
+        <h5>Find the available food by clicking the Browse food section (in the top of the page). If you want to select the food find the details of the 
+          food and contact number, connect with the donor and collect your food. Once you confirm of selecting the food click "Mark as Consumed".</h5>
+      </div>
+      <div class="step">
+        <div class="icon orange">❤️</div>
+        <h4>3. Make a Difference</h4>
+        <h6>Make your efforts, be it small or big in feeding people. then find the satisfaction of feeding hungry people with only extra food.</h6>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-left">
+      <img src="foodshare.png" alt="Logo" />
+      <span>FoodShare</span>
+      <p>© 2025 FoodShare.</p>
+    </div>
+  </footer>
+
+  <!-- Food display logic part Script -->
+  <script>
+    fetch('http://localhost:3000/api/getFood')
+      .then(res => res.json())
+      .then(data => {
+        const container = document.querySelector('.food-items');
+        container.innerHTML = '';
+
+        data.forEach(item => {
+          const cookedAgo = Math.round((new Date() - new Date(item.cook_time)) / 3600000);
+          const label = item.conditionClass === 'fresh'? 'Fresh' : item.conditionClass === 'about-to-expire' ? 'About to Expire' : 'Good';
+
+          const card = `
+            <div class="food-card">
+              <h3>${item.fname} <span class="tag ${item.conditionClass}">${label}</span></h3>
+              <p>${item.qty_amt} ${item.qty_type}. Cooked ${cookedAgo} hours ago.</p>
+              <p>Contact: ${item.contact}</p><br>
+              <button onclick="consumeFood('${item._id}')">Mark as Consumed</button>
+            </div>
+          `;
+          container.innerHTML += card;
+        });
+      })
+      .catch(err => console.error('Error loading food data:', err));
+
+    function consumeFood(id) {
+      fetch(`http://localhost:3000/api/consumeFood/${id}`, {
+        method: 'PUT'
+      })
+      .then(res => res.json())
+      .then(() => location.reload())
+      .catch(err => console.error('Failed to mark as consumed:', err));
+    }
+  </script>
+
+</body>
+</html>

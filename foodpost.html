@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Food Availability Post</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-image: url('bg.jpg');
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    .container {
+      display: flex;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 70%;
+      margin: 40px auto;
+      background-color: rgba(255, 255, 255, 0.95);
+    }
+
+    .form-container {
+      padding: 40px;
+      width: 50%;
+    }
+
+    .image-container {
+      width: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .content {
+      background-color: rgba(48, 55, 57, 0.6); 
+      padding: 40px;
+      border-radius: 10px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .quantity-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .quantity-group input,
+    .quantity-group select {
+      flex: 1;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="image-container">
+    <img src="food.jpg" width="100%" height="100%">
+  </div>
+
+  <div class="content form-container">
+    <form id="foodForm">
+      <fieldset>
+        <legend>FOOD AVAILABILITY POST</legend>
+        <table align="center" border="0" width="80%">
+          <tr>
+            <td><label for="fname">Food Name:</label></td>
+            <td><input type="text" id="fname" name="fname" placeholder="e.g. Rice, Bread, Curry" required></td>
+          </tr>
+
+          <tr>
+            <td><label>Quantity:</label></td>
+            <td>
+              <div class="quantity-group">
+                <input type="number" id="qty_amt" name="qty_amt" min="1" placeholder="Enter qty" required>
+                <select id="qty_type" name="qty_type" required>
+                  <option value="">Select Unit</option>
+                  <option value="person/s">Person</option>
+                  <option value="litres">Litres</option>
+                  <option value="kgs">Kilograms</option>
+                </select>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><label for="cook_time">Time it was cooked:</label></td>
+            <td><input type="datetime-local" id="cook_time" name="cook_time" required></td>
+          </tr>
+
+          <tr>
+            <td><label for="condition">Condition of the Food:</label></td>
+            <td>
+              <select id="condition" name="condition" required>
+                <option value="">--Select Condition--</option>
+                <option value="fresh">Freshly Cooked</option>
+                <option value="about-to-expire">About to Expire</option>
+                <option value="leftover">Left from Plates</option>
+                <option value="stored">Stored for Long Time</option>
+                <option value="reheated">Reheated Food</option>
+              </select>
+            </td>
+          </tr>
+
+          <tr>
+            <td><label for="contact">Contact Number:</label></td>
+            <td><input type="tel" id="contact" name="contact" pattern="[0-9]{10,15}" maxlength="15" placeholder="Enter mobile number" required></td>
+          </tr>
+
+          <tr>
+            <td><label for="exptime">Expiry Time:</label></td>
+            <td><input type="datetime-local" id="exptime" name="exptime" required></td>
+          </tr>
+
+          <tr>
+            <td colspan="2"><button type="submit">Submit</button></td>
+          </tr>
+        </table>
+      </fieldset>
+    </form>
+
+    <div id="message"></div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('foodForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const data = {
+      fname: document.getElementById('fname').value,
+      qty_amt: document.getElementById('qty_amt').value,
+      qty_type: document.getElementById('qty_type').value,
+      cook_time: document.getElementById('cook_time').value,
+      condition: document.getElementById('condition').value,
+      contact: document.getElementById('contact').value,
+      exptime: document.getElementById('exptime').value
+    };
+
+    try {
+      const res = await fetch('http://localhost:3000/api/postFood', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        document.getElementById('message').innerHTML = `
+          <div style="color: green;">✅ Food posted successfully! Redirecting to homepage...</div>
+        `;
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 5000);
+      } else {
+        document.getElementById('message').innerHTML = `
+          <div style="color: red;">❌ Failed to post food: ${result.message}</div>
+        `;
+      }
+    } catch (err) {
+      document.getElementById('message').innerHTML = `
+        <div style="color: red;">❌ Error: ${err.message}</div>
+      `;
+    }
+  });
+</script>
+
+</body>
+</html>
